@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html class="no-js">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="">
+    <script src="https://code.jquery.com/jquery-1.8.3.js"
+        integrity="sha256-dW19+sSjW7V1Q/Z3KD1saC6NcE5TUIhLJzJbrdKzxKc=" crossorigin="anonymous"></script>
+    <style>
+/*tabs*/
+    .gatheringtv .ui_tab {position:relative;top:356px;left:10px;}
+	.gatheringtv .ui_tab .tabs li{position:relative;width:326px;height:71px;float:left;cursor: pointer;background:url('//cdn.df.nexon.com/img/event/2019/0516_gatheringtv/taps_akghlcpf.gif?v=1557994553');text-indent: -99999px;}
+	.gatheringtv .ui_tab .tabs:after {display: block;content: '';clear: both;}
+	.gatheringtv .ui_tab .tabs li#t0 {background-position: 0 0;}
+	.gatheringtv .ui_tab .tabs li#t1 {background-position: -326px 0;}
+	.gatheringtv .ui_tab .tabs li#t2 {width:328px;background-position: -652px 0;}
+	.gatheringtv .ui_tab .tabs li#t0.selected {background-position: 0 -71px;}
+	.gatheringtv .ui_tab .tabs li#t1.selected {background-position: -326px -71px;}
+	.gatheringtv .ui_tab .tabs li#t2.selected {width:328px;background-position:-652px -71px;}
+	.gatheringtv .ui_tab .tabs li#t1.disabled {background-position: -326px 0;cursor:auto}
+	.gatheringtv .ui_tab .tabs li#t2.disabled {width:328px;background-position: -652px 0;cursor:auto}
+	.gatheringtv .ui_tab .tabs li#t1.disabled:after{ content: '';display: block;position: absolute;top: -28px;left:71px;width: 189px;height: 50px;background:url('//cdn.df.nexon.com/img/event/2019/0516_gatheringtv/tooltip_akghlcpf.png?v=1557994553');cursor:auto}
+	.gatheringtv .ui_tab .tabs li#t2.disabled:after{ content: '';display: block;position: absolute;top: -28px;left:71px;width: 189px;height: 50px;background:url('//cdn.df.nexon.com/img/event/2019/0516_gatheringtv/tooltip_akghlcpf.png?v=1557994553') 0 -50px;cursor: auto;}
+	.gatheringtv .ui_tab .tab_content li{display:none;position:relative;width:980px;height:522px;}
+	.gatheringtv .ui_tab .tab_content li iframe{border:0;margin:0;padding:0;width:100%;height:100%;background:#000;}
+
+    </style>
+</head>
+
+<body>
+    <div class="ui_tab">
+        <ul class="tabs">
+            <div class="ui_tab">
+				<ul class="tabs">
+					<li class="" id="t0"> 5/16</li>
+					<li class="selected" id="t1">5/18</li>
+                    <li class="disabled" id="t2">5/25</li>
+                    <!--<li class="" id="t0"> 5/16</li>
+					<li class="" id="t1">5/18</li>
+                    <li class="selected" id="t2">5/25</li>
+                    -->
+                </ul>
+				<ul class="tab_content">
+					<li class="con_1">
+						<iframe id="tv0" src=""></iframe>
+					</li>
+					<li class="con_2">
+						<iframe id="tv1" src=""></iframe>
+					</li>
+					<li class="con_3">
+						<iframe id="tv2" src=""></iframe>
+					</li>
+				</ul>
+			</div>
+
+        </ul>
+</div>
+<script type='text/javascript'>
+
+    (function ($, window) {
+    //from server
+    var youArr1 = "jJt8GKP-1xo";
+    var youArr2 = "Opa_MrBUqtU";
+    var youArr3 = "";
+    //from server // End
+    var videoIds = [youArr1, youArr2, youArr3].filter(function (vId) { return vId !== '' });
+    var players = [];
+    var playerReadyFlags = [false, false, false];
+    var currentIndex;
+    window.onYouTubeIframeAPIReady = function () {
+        var elements = ['tv0', 'tv1', 'tv2'];
+        for (var i = 0; i < videoIds.length; i++) {
+            players.push(createPlayer(elements[i], i));
+        }
+    }
+    var tag = document.createElement('script');
+    tag.src = "https://www.youtube.com/iframe_api";
+    var firstScriptTag = document.getElementsByTagName('script')[0];
+    firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+    function createPlayer(id, playerIndex) {
+        return new YT.Player(id, {
+            events: {
+                'onReady': function (e) { onPlayerReady(playerIndex, e); }
+            }
+        });
+    }
+    function onPlayerReady(idx, event) {
+        playerReadyFlags[idx] = true;
+        if (idx === currentIndex) playCurrentPauseOthers(idx);
+    }
+    function playCurrentPauseOthers(idx) {
+        for (var i = 0; i < playerReadyFlags.length; i++) {
+            if (!playerReadyFlags[i]) continue; //for IE
+            if (i === idx) {
+                players[i].playVideo();
+            } else {
+                players[i].pauseVideo();
+            }
+        }
+    }
+    $(function () {
+        $('.tab_content li').eq($('.tabs li.selected').index()).show();
+        for (var i = 0; i < videoIds.length; i++) {
+            $('.tab_content li').eq(i).find('iframe').attr('src', "https://www.youtube.com/embed/" + videoIds[i] + "?autoplay=0&rel=0&hl=ko_KR&wmode=transparent&enablejsapi=1");
+        }
+        $('.tabs li').click(function () {
+            if ($(this).hasClass('disabled') || $(this).hasClass('selected')) {
+                return false;
+            }
+            currentIndex = $(this).index();;
+            $('.tabs li').removeClass('selected').eq(currentIndex).addClass('selected');
+            $('.tab_content li').hide().eq(currentIndex).show();
+            playCurrentPauseOthers(currentIndex);
+        });
+    });
+})(jQuery, window);
+
+</script>
+</body>
+
+</html>
